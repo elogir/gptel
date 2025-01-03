@@ -273,5 +273,3 @@ Example:
 
 (provide 'gptel-ollama)
 ;;; gptel-ollama.el ends here
-
-

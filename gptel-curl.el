@@ -51,8 +51,8 @@
 
 REQUEST-DATA is the data to send, TOKEN is a unique identifier."
   (let* ((url (let ((backend-url (gptel-backend-url gptel-backend)))
-                    (if (functionp backend-url)
-                        (funcall backend-url) backend-url)))
+                (if (functionp backend-url)
+                    (funcall backend-url) backend-url)))
          (data-json (encode-coding-string (gptel--json-encode data) 'utf-8))
          (headers
           (append '(("Content-Type" . "application/json"))
@@ -220,9 +220,9 @@ PROCESS and _STATUS are process parameters."
               (if (stringp error-data)
                   (message "%s error: (%s) %s" backend-name http-msg error-data)
                 (when-let ((error-msg (plist-get error-data :message)))
-                    (message "%s error: (%s) %s" backend-name http-msg error-msg))
+                  (message "%s error: (%s) %s" backend-name http-msg error-msg))
                 (when-let ((error-type (plist-get error-data :type)))
-                    (setq http-msg (concat "("  http-msg ") " (string-trim error-type))))))
+                  (setq http-msg (concat "("  http-msg ") " (string-trim error-type))))))
              ((eq response 'json-read-error)
               (message "%s error (%s): Malformed JSON in response." backend-name http-msg))
              (t (message "%s error (%s): Could not parse HTTP response." backend-name http-msg)))))
@@ -246,7 +246,7 @@ PROCESS and _STATUS are process parameters."
     (kill-buffer proc-buf)))
 
 (defun gptel-curl--stream-insert-response (response info)
-  "Insert streaming RESPONSE from an LLM into the gptel buffer.
+  "Replace streaming RESPONSE from an LLM in the gptel buffer.
 
 INFO is a mutable plist containing information relevant to this buffer.
 See `gptel--url-get-response' for details."
@@ -262,7 +262,7 @@ See `gptel--url-get-response' for details."
             (unless (or (bobp) (plist-get info :in-place))
               (insert "\n\n")
               (when gptel-mode
-                ;; Put prefix before AI response.
+                ;; Put prefix before AI response
                 (insert (gptel-response-prefix-string)))
               (move-marker start-marker (point)))
             (setq tracking-marker (set-marker (make-marker) (point)))
@@ -274,7 +274,9 @@ See `gptel--url-get-response' for details."
 
           (put-text-property
            0 (length response) 'gptel 'response response)
-          (goto-char tracking-marker)
+          (goto-char start-marker)
+          ;; Delete existing content between markers
+          (delete-region start-marker tracking-marker)
           ;; (run-hooks 'gptel-pre-stream-hook)
           (insert response)
           (run-hooks 'gptel-post-stream-hook))))))
